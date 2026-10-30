@@ -1,0 +1,23 @@
+
+model {
+
+#likelihood~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#nest survival model
+
+    for(i in 1:nClutches){
+      for(t in (first[i]+1):last[i]){
+        y[i,t] ~ dbern(p[i,t])
+        logit(q[i,t]) <- mean.b0 + beta1*cs[i,t] + beta2*cs2[i,t]
+        p[i,t] <- (y[i,t-1])*q[i,t]
+      }
+    }
+
+#priors~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  b0 ~ dunif(0,1)
+  mean.b0 <- logit(b0)
+  beta1 ~ dnorm(0, 0.001)
+  beta2 ~ dnorm(0, 0.001)
+  
+}

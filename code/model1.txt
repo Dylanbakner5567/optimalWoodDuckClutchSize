@@ -1,0 +1,44 @@
+
+model{
+
+#likelihood~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#loop through the clutches (i.e., nClutches) each day (i.e., day)
+
+    for(i in 1:nClutches){
+      for(t in init[i]:last[i]){
+
+        #lambda according to a normal distribution
+        lambda[i,t] ~ dnorm(mu[i,t], tau)
+
+        #linear predictor 
+        mu[i,t] <- alpha 
+    
+        #predict N (i.e.,clutch sizes)
+        N[i,t+1] <- N[i,t] + lambda[i,t]
+    
+        #observation model (i.e., clutch size corrected due to observation error)
+        y[i,t] ~ dnorm(N[i,t], tau.y)
+      }
+    }
+  
+#priors~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#lambda intercept, standard deviation, and variance
+
+    alpha ~ dnorm(0, 0.01)
+    sigma ~ dunif(0,10)
+    tau <- 1 / (sigma * sigma)
+
+#inital clutch size
+
+    for(i in 1:nClutches){
+      N[i,init[i]] ~ dunif(-50,50)
+    }
+
+#standard deviation and variance for the observation model
+
+    sigma.y ~ dunif(0,10)
+    tau.y <- 1 / (sigma.y * sigma.y)
+  
+}
